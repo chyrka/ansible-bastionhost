@@ -1,0 +1,47 @@
+---
+- name: Install firewalld
+  ansible.builtin.yum:
+    name: firewalld
+    state: present
+
+- name: Start and enable firewalld
+  ansible.builtin.service:
+    name: firewalld
+    state: started
+    enabled: yes
+
+- name: Allow SSH through the firewall from any source
+  ansible.builtin.firewalld:
+    service: ssh
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Allow tunneling from local network
+  ansible.builtin.firewalld:
+    source: "{{ internal_subnet }}"
+    ports: "{{ allowed_ports }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Remove all other services from the firewall
+  ansible.builtin.firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: disabled
+    immediate: yes
+  loop:
+    - dhcpv6-client
+    - http
+    - https
+    - smtp
+    - imap
+    - pop3
+    - ftp
+    - samba
+    - nfs
+
+- name: Reload firewalld
+  ansible.builtin.firewalld:
+    state: reloaded

@@ -1,0 +1,43 @@
+---
+- name: Ensure NetworkManager is installed
+  package:
+    name: NetworkManager
+    state: present
+
+- name: Configure internal interface
+  nmcli:
+    conn_name: "{{ internal_interface }}"
+    ifname: "{{ internal_interface }}"
+    type: "ethernet"
+    ip4: "{{ internal_ip }}/24"
+    gw4: "{{ internal_gateway }}"
+    state: "present"
+    route_metric4: 100
+
+- name: Configure public interface
+  nmcli:
+    conn_name: "{{ public_interface }}"
+    ifname: "{{ public_interface }}"
+    type: "ethernet"
+    ip4: "{{ public_ip }}/24"
+    gw4: "{{ public_gateway }}"
+    state: "present"
+    route_metric4: 101
+
+- name: Add routing table for public interface
+  lineinfile:
+    path: "/etc/iproute2/rt_tables"
+    line: "100 public_table"
+    state: present
+
+- name: Configure routing rule for public interface
+  command:
+    cmd: "ip rule add from {{ public_ip }} table public_table priority 100"
+
+- name: Add default route to public table
+  command:
+    cmd: "ip route add default via {{ public_gateway }} dev {{ public_interface }} table public_table metric 100"
+
+- name: Reload NetworkManager connections to apply changes
+  command:
+    cmd: "nmcli connection reload"

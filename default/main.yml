@@ -1,0 +1,8 @@
+public_interface: eth1
+internal_interface: eth0
+public_ip: "34.56.125.14"
+internal_ip: "10.10.24.5"
+internal_gateway: "10.10.24.1"
+public_gateway: "34.56.125.1"
+ssh_user: "{{ lookup('env', 'USER') }}"  # Поточний користувач
+generate_user: false  # Якщо true, створюється новий користувач
