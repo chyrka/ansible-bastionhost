@@ -16,3 +16,5 @@
   tasks:
     - include_tasks: tasks/configure_routes.yml
     - include_tasks: tasks/create_user_gen_sshkey.yml
+    - include_tasks: tasks/restrict_ssh.yml
+    - include_tasks: tasks/configure_firewalld.yml
